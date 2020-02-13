@@ -1,0 +1,3 @@
+biologia,imagen1.png
+literatura,imagen2.png
+geografia,imagen3.png

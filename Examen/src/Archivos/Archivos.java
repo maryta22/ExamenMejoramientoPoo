@@ -29,8 +29,11 @@ public class Archivos{
         try {
             PrintWriter archivo = new PrintWriter(new BufferedWriter(new FileWriter("src/recursos/categorias.txt")));
             archivo.print("biologia,imagen1.png");
+            archivo.println();
             archivo.print("literatura,imagen2.png");
-            archivo.print("geografia, imagen3.png");
+            archivo.println();
+            archivo.print("geografia,imagen3.png");
+            archivo.close();
         } catch (IOException ex) {
             System.out.println("No se pudo crear el archivo Categorias");
         }
