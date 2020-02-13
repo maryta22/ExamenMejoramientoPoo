@@ -44,13 +44,13 @@ public class Archivos{
                 ObjectOutputStream geografia = new ObjectOutputStream(new FileOutputStream("src/recursos/geografia"));
                 ObjectOutputStream literatura = new ObjectOutputStream(new FileOutputStream("src/recursos/literatura"))) {
 
-            biologia.writeObject(preguntas.biologia);
+            biologia.writeObject(preguntas.getBiologia());
             biologia.close();
 
-            geografia.writeObject(preguntas.geografia);
+            geografia.writeObject(preguntas.getGeografia());
             geografia.close();
 
-            literatura.writeObject(preguntas.literatura);
+            literatura.writeObject(preguntas.getLiteratura());
             literatura.close();
 
         } catch (IOException ex) {

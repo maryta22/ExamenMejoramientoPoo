@@ -11,9 +11,9 @@ import java.util.List;
 
 
 public final class Preguntas {
-    List<Pregunta> biologia = new ArrayList<>();
-    List<Pregunta> geografia = new ArrayList<>();
-    List<Pregunta> literatura = new ArrayList<>();
+    private List<Pregunta> biologia = new ArrayList<>();
+    private List<Pregunta> geografia = new ArrayList<>();
+    private List<Pregunta> literatura = new ArrayList<>();
 
  
     Preguntas(){
@@ -24,89 +24,89 @@ public final class Preguntas {
   
     public void crearPreguntasBiología(){
         
-        List<String> pregunta1 = new ArrayList<>();
-        List<String> pregunta2 = new ArrayList<>();
-        List<String> pregunta3 = new ArrayList<>();
+        ArrayList<String> bpregunta1 = new ArrayList<>();
+        ArrayList<String> bpregunta2 = new ArrayList<>();
+        ArrayList<String> bpregunta3 = new ArrayList<>();
         
-        pregunta1.add("Unidad funcional de la vida");
-        pregunta1.add("Unidad mínima de la materia");
-        pregunta1.add("Conjunto de átomos es seres inertes");
-        pregunta1.add("Conjunto de tejidos");
-        pregunta1.add("Electrones");
+        bpregunta1.add("Unidad funcional de la vida");
+        bpregunta1.add("Unidad mínima de la materia");
+        bpregunta1.add("Conjunto de átomos es seres inertes");
+        bpregunta1.add("Conjunto de tejidos");
+        bpregunta1.add("Electrones");
         
-        pregunta2.add("Vacuola");
-        pregunta2.add("Mitocondria");
-        pregunta2.add("Pared Celular");
-        pregunta2.add("Reticulo Endoplasmático");
-        pregunta2.add("Cloroplastos");
+        bpregunta2.add("Vacuola");
+        bpregunta2.add("Mitocondria");
+        bpregunta2.add("Pared Celular");
+        bpregunta2.add("Reticulo Endoplasmático");
+        bpregunta2.add("Cloroplastos");
         
-        pregunta3.add("Metafase");
-        pregunta3.add("Telofase");
-        pregunta3.add("Anafase");
-        pregunta3.add("Infase");
-        pregunta3.add("Profase");
+        bpregunta3.add("Metafase");
+        bpregunta3.add("Telofase");
+        bpregunta3.add("Anafase");
+        bpregunta3.add("Infase");
+        bpregunta3.add("Profase");
         
-        biologia.add(new Pregunta("¿Qué es la célula?", pregunta1 , "Unidad funcional de la vida"));
-        biologia.add(new Pregunta("¿En donde se realiza la fotosíntesis?", pregunta2 , "Cloroplastos"));
-        biologia.add(new Pregunta("¿Cuál no es una fase de la mitosis?", pregunta3 , "Infase"));
+        biologia.add(new Pregunta("¿Qué es la célula?", bpregunta1 , "Unidad funcional de la vida"));
+        biologia.add(new Pregunta("¿En donde se realiza la fotosíntesis?", bpregunta2 , "Cloroplastos"));
+        biologia.add(new Pregunta("¿Cuál no es una fase de la mitosis?", bpregunta3 , "Infase"));
     }
     
     public void crearPreguntasGeografia(){
         
-        List<String> pregunta1 = new ArrayList<>();
-        List<String> pregunta2 = new ArrayList<>();
-        List<String> pregunta3 = new ArrayList<>();
+        ArrayList<String> gpregunta1 = new ArrayList<>();
+        ArrayList<String> gpregunta2 = new ArrayList<>();
+        ArrayList<String> gpregunta3 = new ArrayList<>();
         
-        pregunta1.add("Guayaquil");
-        pregunta1.add("Quito");
-        pregunta1.add("Zamora Chimchipe");
-        pregunta1.add("Guayas");
-        pregunta1.add("Pichincha");
+        gpregunta1.add("Guayaquil");
+        gpregunta1.add("Quito");
+        gpregunta1.add("Zamora Chimchipe");
+        gpregunta1.add("Guayas");
+        gpregunta1.add("Pichincha");
         
-        pregunta2.add("2");
-        pregunta2.add("4");
-        pregunta2.add("6");
-        pregunta2.add("5");
-        pregunta2.add("3");
+        gpregunta2.add("2");
+        gpregunta2.add("4");
+        gpregunta2.add("6");
+        gpregunta2.add("5");
+        gpregunta2.add("3");
         
-        pregunta3.add("Océano Atlántico");
-        pregunta3.add("Océano Índico");
-        pregunta3.add("Océano Pacífico");
-        pregunta3.add("Océano Atlártico");
-        pregunta3.add("Océano Ártico");
+        gpregunta3.add("Océano Atlántico");
+        gpregunta3.add("Océano Índico");
+        gpregunta3.add("Océano Pacífico");
+        gpregunta3.add("Océano Atlártico");
+        gpregunta3.add("Océano Ártico");
         
-        geografia.add(new Pregunta("¿Cuál es la capital del Ecuador?", pregunta1 , "Quito"));
-        geografia.add(new Pregunta("¿Cuántos continentes hay?", pregunta2 , "6"));
-        geografia.add(new Pregunta("¿Cuál es el océano más grande del mundo en superficie?", pregunta3 , "Océano Pacífico"));
+        geografia.add(new Pregunta("¿Cuál es la capital del Ecuador?", gpregunta1 , "Quito"));
+        geografia.add(new Pregunta("¿Cuántos continentes hay?", gpregunta2 , "6"));
+        geografia.add(new Pregunta("¿Cuál es el océano más grande del mundo en superficie?", gpregunta3 , "Océano Pacífico"));
     }
     
     public void crearPreguntasLiteratura(){
         
-        List<String> pregunta1 = new ArrayList<>();
-        List<String> pregunta2 = new ArrayList<>();
-        List<String> pregunta3 = new ArrayList<>();
+        ArrayList<String> lpregunta1 = new ArrayList<>();
+        ArrayList<String> lpregunta2 = new ArrayList<>();
+        ArrayList<String> lpregunta3 = new ArrayList<>();
         
-        pregunta1.add("Marco Tulio Cicerón");
-        pregunta1.add("Homero");
-        pregunta1.add("Séneca");
-        pregunta1.add("Heródoto");
-        pregunta1.add("Galileo");
+        lpregunta1.add("Marco Tulio Cicerón");
+        lpregunta1.add("Homero");
+        lpregunta1.add("Séneca");
+        lpregunta1.add("Heródoto");
+        lpregunta1.add("Galileo");
         
-        pregunta2.add("Alejandro Magno");
-        pregunta2.add("Julio César");
-        pregunta2.add("El sueño de una noche de Verano");
-        pregunta2.add("Hamlet");
-        pregunta2.add("Otelo");
+        lpregunta2.add("Alejandro Magno");
+        lpregunta2.add("Julio César");
+        lpregunta2.add("El sueño de una noche de Verano");
+        lpregunta2.add("Hamlet");
+        lpregunta2.add("Otelo");
         
-        pregunta3.add("El Señor de los Anillos (Saga)");
-        pregunta3.add("Star Wards");
-        pregunta3.add("Citas del Presidente Mao");
-        pregunta3.add("La Biblia");
-        pregunta3.add("Historia de dos ciudades");
+        lpregunta3.add("El Señor de los Anillos (Saga)");
+        lpregunta3.add("Star Wards");
+        lpregunta3.add("Citas del Presidente Mao");
+        lpregunta3.add("La Biblia");
+        lpregunta3.add("Historia de dos ciudades");
         
-        literatura.add(new Pregunta("¿Quién escribió 'La Ilíada'?", pregunta1 , "Homero"));
-        literatura.add(new Pregunta("¿Cuál de estas obras no es de William Shakespeare?", pregunta2 , "Alejandro Magno"));
-        literatura.add(new Pregunta("¿Cuál es el libro más vendido de los últimos 50 años?", pregunta3 , "La Biblia"));
+        literatura.add(new Pregunta("¿Quién escribió 'La Ilíada'?", lpregunta1 , "Homero"));
+        literatura.add(new Pregunta("¿Cuál de estas obras no es de William Shakespeare?", lpregunta2 , "Alejandro Magno"));
+        literatura.add(new Pregunta("¿Cuál es el libro más vendido de los últimos 50 años?", lpregunta3 , "La Biblia"));
     }
 
     public List<Pregunta> getBiologia() {

@@ -39,6 +39,7 @@ import javafx.stage.Stage;
  * @author Ma. Cecilia
  */
 public class VistaExamen extends Application {
+
     private Examen e;
     private VBox root;
     private int correctas;
@@ -49,91 +50,101 @@ public class VistaExamen extends Application {
     private ComboBox categorias;
     private List<String> listaCategorias = FXCollections.observableArrayList();
     private List<String> rutaImagenes = FXCollections.observableArrayList();
-    /**public Pregunta obtenerPregunta(List<Pregunta> p ){
-        
-    }**/
-    
+
+    private Iterator<Pregunta> iterator;
+
+    /**
+     * public Pregunta obtenerPregunta(List<Pregunta> p ){
+     *
+     * }*
+     */
     @Override
     public void start(Stage primaryStage) {
-        
+
         categorias = new ComboBox();
         ObservableList paraCombo = (ObservableList) listaCategorias;
         categorias.setItems(paraCombo);
-        
+
         categorias.setOnAction(new crearPreguntas());
-        
+
         categoria = new HBox();
-        categoria.getChildren().addAll(new Label("Seleccione Categoría: "),categorias);
-        
+        categoria.getChildren().addAll(new Label("Seleccione Categoría: "), categorias);
+
         tiempo = new HBox();
         tiempo.getChildren().addAll(new Label("Tiempo: "), lTiempo);
-        
-        root = new VBox();
-        root.getChildren().addAll(tiempo,categoria);
-        
+
+        root = new VBox(10);
+        root.getChildren().addAll(tiempo, categoria);
+
         Scene scene = new Scene(root, 750, 500);
-        
+
         primaryStage.setTitle("Examen");
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.show();
-       
+
     }
-    
-    private class crearPreguntas implements EventHandler<ActionEvent>{
+
+    private class crearPreguntas implements EventHandler<ActionEvent> {
+
         String nombreCategoria;
         String ruta;
-        
+
         HBox avanzar;
         ImageView imagen;
         Label pregunta;
-        Label opcion1;
-        Label opcion2;
-        Label opcion3;
-        Label opcion4;
-        Label opcion5;
+        Button opcion1;
+        Button opcion2;
+        Button opcion3;
+        Button opcion4;
+        Button opcion5;
         Label acierto;
         Button seguir;
-        
-        boolean leer;
-        
-        crearPreguntas(){
-            leer = true;
+
+        List<Pregunta> preguntas;
+
+        crearPreguntas() {
+
             pregunta = new Label();
+            opcion1 = new Button();
+            opcion2 = new Button();
+            opcion3 = new Button();
+            opcion4 = new Button();
+            opcion5 = new Button();
+            acierto = new Label();
+
         }
-        
+
         @Override
         public void handle(ActionEvent event) {
             FileInputStream inputstream = null;
             try {
                 //establecer categoria
-                nombreCategoria = (String)categorias.getValue();
+                nombreCategoria = (String) categorias.getValue();
                 //establecer ruta
-                for( String c: listaCategorias){
-                    if(c.equals(nombreCategoria)){
+                for (String c : listaCategorias) {
+                    if (c.equals(nombreCategoria)) {
                         int indice = listaCategorias.indexOf(c);
                         ruta = rutaImagenes.get(indice);
                     }
-                }   
+                }
                 //añadir imagen
-                inputstream = new FileInputStream("src/recursos/"+ruta);
+                inputstream = new FileInputStream("src/recursos/" + ruta);
                 Image i = new Image(inputstream);
-                imagen =new ImageView(i);
+                imagen = new ImageView(i);
                 imagen.setFitHeight(200);
                 imagen.setFitWidth(200);
                 categoria.getChildren().add(imagen);
+
                 //bloqueo ComboBox
                 categorias.setDisable(true);
+
+                //Preguntas y respuestas
+                preguntas = leerArchivo();
+                iterator = preguntas.iterator();
+                siguientePregunta();
+
                 
-                List<Pregunta> preguntas= leerArchivo();
-                Iterator<Pregunta> iterator = preguntas.iterator();
-                while(iterator.hasNext()){
-                    root.getChildren().removeAll(pregunta);
-                    Pregunta p = iterator.next();
-                    pregunta.setText(p.getTexto());
-                    root.getChildren().add(pregunta);
-                    
-                }
             } catch (FileNotFoundException ex) {
                 System.out.println("Imagen no encontrada");
             } finally {
@@ -143,57 +154,74 @@ public class VistaExamen extends Application {
                     System.out.println("io exception imagen");
                 }
             }
-            
-           
+
         }
-        
-        public List<Pregunta> leerArchivo(){
-            try(ObjectInputStream archivo = new ObjectInputStream(new FileInputStream("src/recursos/"+nombreCategoria))) {
-                while(leer){
-                    List<Pregunta> lista = (List<Pregunta>)archivo.readObject();
-                    return lista;
-                }
+
+        public void siguientePregunta() {
+            root.getChildren().remove(pregunta);
+            Pregunta p = iterator.next();
+            pregunta.setText(p.getTexto());
+            root.getChildren().add(pregunta);
+            List<String> opciones = p.getOpciones();
+            System.out.println(opciones);
+            opcion1.setText(opciones.get(0));
+            opcion2.setText(opciones.get(1));
+            opcion3.setText(opciones.get(2));
+            opcion4.setText(opciones.get(3));
+            opcion5.setText(opciones.get(4));
+            root.getChildren().addAll(opcion1,opcion2,opcion3,opcion4,opcion5);
+        }
+
+        /**
+         * Metodo que lee el archivo binario de la categoria seleccionada.
+         *
+         * @return la lista que contiene los objetos.
+         */
+        public List<Pregunta> leerArchivo() {
+            try (ObjectInputStream archivo = new ObjectInputStream(new FileInputStream("src/recursos/" + nombreCategoria))) {
+                List<Pregunta> lista = (List<Pregunta>) archivo.readObject();
+                archivo.close();
+                return lista;
             } catch (FileNotFoundException ex) {
                 System.out.println("Archivo  no encontrado");
-            }catch(EOFException ex){
+            } catch (EOFException ex) {
                 System.out.println("Archivo culminado");
-                leer= false;
-            }catch (IOException ex) {
-                System.out.println("IO EXCEPTION EN LA LECTURA DEL ARCHIVO");        
+            } catch (IOException ex) {
+                System.out.println("IO EXCEPTION EN LA LECTURA DEL ARCHIVO");
             } catch (ClassNotFoundException ex) {
                 System.out.println("ClassNotFoundException");
-            }    
-        return null;
+            }
+            return null;
         }
-        
+
     }
-    
+
     @Override
-    public void init(){
+    public void init() {
         Archivos archivos = new Archivos();
         archivos.generarCategorias();
         archivos.generarBinarios();
         leerCategorias();
-        
+
     }
-    
-    public void leerCategorias(){
-        try (BufferedReader archivo = new BufferedReader( new FileReader ("src/recursos/categorias.txt") )){
+
+    public void leerCategorias() {
+        try (BufferedReader archivo = new BufferedReader(new FileReader("src/recursos/categorias.txt"))) {
             String linea = archivo.readLine();
-            while(linea != null ){
+            while (linea != null) {
                 String[] lista = linea.split(",");
                 listaCategorias.add(lista[0]);
                 rutaImagenes.add(lista[1]);
                 linea = archivo.readLine();
             }
             archivo.close();
-            
+
         } catch (FileNotFoundException ex) {
             System.out.println("CARPETA NO ENCONTRADA");
-        } catch (IOException ex){
+        } catch (IOException ex) {
             System.out.println("IO EXCEPTION EN LECTURA DEL ARCHIVO DE TEXTO");
         }
-        
+
     }
 
     /**
@@ -202,5 +230,5 @@ public class VistaExamen extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
+
 }
