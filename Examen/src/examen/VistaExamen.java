@@ -5,113 +5,141 @@
  */
 package examen;
 
-import Archivos.Archivos;
-import java.io.BufferedReader;
-import java.io.EOFException;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.application.Application;
+import java.util.Map;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Scene;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 /**
  *
  * @author Ma. Cecilia
  */
-public class VistaExamen extends Application {
+public final class VistaExamen {
 
     private Examen e;
     private VBox root;
+
     private int correctas;
     private int tTranscurridos;
-    private Label lTiempo = new Label("0");
+    private boolean parar;
+    private int tiempoContando;
+    private int totalCorrectas;
+    private int totalIncorrectas;
+
+    private Label lTiempo;
     private HBox tiempo;
     private HBox categoria;
     private ComboBox categorias;
-    private List<String> listaCategorias = FXCollections.observableArrayList();
-    private List<String> rutaImagenes = FXCollections.observableArrayList();
 
+    private Button seguir;
+    private Button finalizar;
+
+    private Button opcion1;
+    private Button opcion2;
+    private Button opcion3;
+    private Button opcion4;
+    private Button opcion5;
+
+    private String nombreCategoria;
+    private String ruta;
+    
+    private VBox paraPregunta;
+    private HBox avanzar;
+    private ImageView imagen;
+
+    private Label pregunta;
+    private Label acierto;
+
+    private List<Pregunta> preguntas;
+    private Pregunta p;
+
+    private Map<Categoria, List<Pregunta>> preguntasMapa;
+
+    private final List<String> listaCategorias = FXCollections.observableArrayList();
+    private ObservableList paraCombo = (ObservableList) listaCategorias;
+    private final Map<String, String> rutaImagenes = new HashMap<>();
+
+    Iterator<Map.Entry<Categoria, List<Pregunta>>> iteratorMapa;
     private Iterator<Pregunta> iterator;
 
-    /**
-     * public Pregunta obtenerPregunta(List<Pregunta> p ){
-     *
-     * }*
-     */
-    @Override
-    public void start(Stage primaryStage) {
+    //llena las listas para el comboBox y obtener las imagenes.
+    public VistaExamen() {
 
-        categorias = new ComboBox();
-        ObservableList paraCombo = (ObservableList) listaCategorias;
-        categorias.setItems(paraCombo);
+        try {
+            e = new Examen(0);
+            preguntasMapa = e.getMapaPreguntas();
+            llenarListas();
 
-        categorias.setOnAction(new crearPreguntas());
+            totalCorrectas = 0;
+            totalIncorrectas = 0;
 
-        categoria = new HBox();
-        categoria.getChildren().addAll(new Label("Seleccione Categoría: "), categorias);
+            lTiempo = new Label();
 
-        tiempo = new HBox();
-        tiempo.getChildren().addAll(new Label("Tiempo: "), lTiempo);
+            
+            categorias = new ComboBox();
+            categorias.setItems(paraCombo);
 
-        root = new VBox(10);
-        root.getChildren().addAll(tiempo, categoria);
+            categorias.setOnAction(new crearPreguntas());
 
-        Scene scene = new Scene(root, 750, 500);
+            categoria = new HBox();
+            categoria.getChildren().addAll(new Label("Seleccione Categoría: "), categorias);
+            
 
-        primaryStage.setTitle("Examen");
-        primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
-        primaryStage.show();
+            tiempo = new HBox();
+            tiempo.getChildren().addAll(new Label("Tiempo: "), lTiempo);
+
+            root = new VBox(10);
+            root.getChildren().addAll(tiempo, categoria);
+
+        } catch (IOException ex) {
+            System.out.println("Io exception creacion examen");
+        }
 
     }
 
+    //clase interna cuando se selecciona una opcion del combo.
     private class crearPreguntas implements EventHandler<ActionEvent> {
 
-        String nombreCategoria;
-        String ruta;
-
-        HBox avanzar;
-        ImageView imagen;
-        Label pregunta;
-        Button opcion1;
-        Button opcion2;
-        Button opcion3;
-        Button opcion4;
-        Button opcion5;
-        Label acierto;
-        Button seguir;
-
-        List<Pregunta> preguntas;
-
         crearPreguntas() {
-
+            paraPregunta= new VBox();
+            paraPregunta.setMinWidth(100);
+            paraPregunta.setAlignment(Pos.CENTER);
+            
             pregunta = new Label();
+                 
             opcion1 = new Button();
             opcion2 = new Button();
             opcion3 = new Button();
             opcion4 = new Button();
             opcion5 = new Button();
-            acierto = new Label();
+            
+            acierto = new Label("                    ");
+            seguir = new Button("Siguiente");
+            
+            avanzar = new HBox(10);
+            avanzar.setMinWidth(100);
+            avanzar.setAlignment(Pos.CENTER);
+            
+            finalizar = new Button(" FINALIZAR ");
 
         }
 
@@ -119,15 +147,16 @@ public class VistaExamen extends Application {
         public void handle(ActionEvent event) {
             FileInputStream inputstream = null;
             try {
+                         
+                correctas = 0;
+                categoria.getChildren().removeAll(imagen);
+                listaCategorias.remove(nombreCategoria);
+                
+ 
                 //establecer categoria
                 nombreCategoria = (String) categorias.getValue();
                 //establecer ruta
-                for (String c : listaCategorias) {
-                    if (c.equals(nombreCategoria)) {
-                        int indice = listaCategorias.indexOf(c);
-                        ruta = rutaImagenes.get(indice);
-                    }
-                }
+                buscarRutaImagen();
                 //añadir imagen
                 inputstream = new FileInputStream("src/recursos/" + ruta);
                 Image i = new Image(inputstream);
@@ -140,11 +169,12 @@ public class VistaExamen extends Application {
                 categorias.setDisable(true);
 
                 //Preguntas y respuestas
-                preguntas = leerArchivo();
+                preguntas = obtenerPreguntas();
                 iterator = preguntas.iterator();
+
+                //añadir primera pregunta
                 siguientePregunta();
 
-                
             } catch (FileNotFoundException ex) {
                 System.out.println("Imagen no encontrada");
             } finally {
@@ -157,78 +187,248 @@ public class VistaExamen extends Application {
 
         }
 
-        public void siguientePregunta() {
-            root.getChildren().remove(pregunta);
-            Pregunta p = iterator.next();
-            pregunta.setText(p.getTexto());
-            root.getChildren().add(pregunta);
-            List<String> opciones = p.getOpciones();
-            System.out.println(opciones);
-            opcion1.setText(opciones.get(0));
-            opcion2.setText(opciones.get(1));
-            opcion3.setText(opciones.get(2));
-            opcion4.setText(opciones.get(3));
-            opcion5.setText(opciones.get(4));
-            root.getChildren().addAll(opcion1,opcion2,opcion3,opcion4,opcion5);
+    }
+
+    //hilo para el contador
+    class Contador implements Runnable {
+
+        Contador() {
+            tiempoContando = 60;
+            parar = false;
         }
 
-        /**
-         * Metodo que lee el archivo binario de la categoria seleccionada.
-         *
-         * @return la lista que contiene los objetos.
-         */
-        public List<Pregunta> leerArchivo() {
-            try (ObjectInputStream archivo = new ObjectInputStream(new FileInputStream("src/recursos/" + nombreCategoria))) {
-                List<Pregunta> lista = (List<Pregunta>) archivo.readObject();
-                archivo.close();
-                return lista;
-            } catch (FileNotFoundException ex) {
-                System.out.println("Archivo  no encontrado");
-            } catch (EOFException ex) {
-                System.out.println("Archivo culminado");
+        @Override
+        public void run() {
+            while (!parar) {
+                try {
+                    tiempoContando -= 1;
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            lTiempo.setText(String.valueOf(tiempoContando));
+                        }
+                    });
+                    Thread.sleep(1000);
+                    if (tiempoContando <= 0) {
+                        parar = true;
+                        tTranscurridos += 60;
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                agregarPregunta();
+                            }
+                        });
+                    }
+                } catch (InterruptedException ex) {
+                    System.out.println("Hilo Interrumpido");
+                }
+
+            }
+        }
+
+    }
+
+    //Obtiene la categoría con el String obtenido en el combo.
+    public Categoria obtenerCategoria() {
+        for (Map.Entry<Categoria, List<Pregunta>> c : preguntasMapa.entrySet()) {
+            if (c.getKey().equals(nombreCategoria)) {
+                return c.getKey();
+            }
+        }
+        return null;
+    }
+
+    //obtener ruta de la imagen
+    public void buscarRutaImagen() {
+        ruta = rutaImagenes.get(nombreCategoria);
+    }
+
+    //Obtenemos la lista de opciones de respuesta de la categoría escogida.
+    public List<Pregunta> obtenerPreguntas() {
+        return preguntasMapa.get(obtenerCategoria());
+    }
+
+    //limpia el root al presionar siguiente y muestra la siguiente pregunta.
+    public void siguientePregunta() {
+        
+        limpiarRoot();
+        desbloquearBotones();
+
+        root.getChildren().remove(paraPregunta);
+
+        p = iterator.next();
+
+        Contador cronometro = new Contador();
+        Thread hilo = new Thread(cronometro);
+        hilo.start();
+
+        pregunta.setText(p.getTexto());
+
+        List<String> opciones = p.getOpciones();
+
+        opcion1.setText(opciones.get(0));
+        opcion2.setText(opciones.get(1));
+        opcion3.setText(opciones.get(2));
+        opcion4.setText(opciones.get(3));
+        opcion5.setText(opciones.get(4));
+
+        correcto(opcion1);
+        correcto(opcion2);
+        correcto(opcion3);
+        correcto(opcion4);
+        correcto(opcion5);
+
+        seguir.setDisable(true);
+        Siguiente(seguir);
+        
+        paraPregunta.getChildren().add(pregunta);
+        root.getChildren().add(paraPregunta);
+        root.getChildren().addAll(opcion1, opcion2, opcion3, opcion4, opcion5);
+        avanzar.getChildren().addAll(acierto, seguir);
+
+        root.getChildren().add(avanzar);
+
+    }
+
+    //verifica si el botón presionado es correcto o incorrecto.
+    public void correcto(Button boton) {
+        boton.setOnAction(e -> {
+            if (!boton.getText().equals(p.getRespuesta())) {
+                acierto.setText("INCORRECTO");
+                totalIncorrectas += 1;
+            } else {
+                acierto.setText("CORRECTO");
+                correctas += 1;
+                totalCorrectas += 1;
+            }
+            seguir.setDisable(false);
+            bloquearBotones();
+            parar = true;
+            tTranscurridos += (60 - tiempoContando);
+
+        });
+    }
+
+    //accion de presionar al siguiente botón
+    public void Siguiente(Button boton) {
+        //accion del botón siguiente
+        boton.setOnAction(e -> {
+            agregarPregunta();
+        });
+    }
+
+    //verifica si hay preguntas para añadir y añade, si no hay muestra resultados.
+    public void agregarPregunta() {
+        if (iterator.hasNext()) {
+            siguientePregunta();
+        } else {
+            Resultados();
+        }
+    }
+
+    //muestra los resultados
+    public void Resultados() {
+        limpiarRoot();
+        categorias.setDisable(false);
+        acierto.setText("SE TERMINÓ EL TIEMPO "
+                + " - " + correctas
+                + " respuestas correctas ");
+        root.getChildren().add(acierto);
+        lTiempo.setText("");
+        
+
+        if (listaCategorias.size() == 1) {
+            categorias.setDisable(true);
+            root.getChildren().add(finalizar);
+            finalizarPrueba(finalizar);
+        }
+
+    }
+
+    //bloquea los botones de opciones.
+    public void bloquearBotones() {
+        opcion1.setDisable(true);
+        opcion2.setDisable(true);
+        opcion3.setDisable(true);
+        opcion4.setDisable(true);
+        opcion5.setDisable(true);
+
+    }
+
+    //desbloquea los botones de opciones.
+    public void desbloquearBotones() {
+        opcion1.setDisable(false);
+        opcion2.setDisable(false);
+        opcion3.setDisable(false);
+        opcion4.setDisable(false);
+        opcion5.setDisable(false);
+
+    }
+
+    //limpia el root.
+    public void limpiarRoot() {
+        acierto.setText("                    ");
+        paraPregunta.getChildren().removeAll(pregunta);
+        avanzar.getChildren().removeAll(acierto, seguir);
+        root.getChildren().removeAll(paraPregunta, opcion1, opcion2, opcion3, opcion4, opcion5, avanzar);
+    }
+
+    public void llenarListas() {
+        iteratorMapa = preguntasMapa.entrySet().iterator();
+        while (iteratorMapa.hasNext()) {
+            //no llamar el iterator en varias lineas
+            Map.Entry<Categoria, List<Pregunta>> entry = iteratorMapa.next();
+            listaCategorias.add(entry.getKey().getNombre());
+            rutaImagenes.put(entry.getKey().getNombre(), entry.getKey().getImagen());
+        }
+
+    }
+
+    public void finalizarPrueba(Button boton) {
+        boton.setOnAction(e -> {
+            root.getChildren().remove(finalizar);
+            root.getChildren().add(new Label(" Prueba Finalizada "));
+            registrarExamen();
+        });
+    }
+
+    public void registrarExamen() {
+        String linea = " Prueba Finalizada en : " + String.valueOf(tTranscurridos) + " segundos "
+                + "  Correctas - " + String.valueOf(totalCorrectas)
+                + "  Incorrectas -  " + String.valueOf(totalIncorrectas);
+        root.getChildren().add(new Label(linea));
+        guardarRegistro(linea);
+    }
+
+    public void guardarRegistro(String linea) {
+        File file = new File("src/recursos/registros.txt");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                try (BufferedWriter bf = new BufferedWriter(new FileWriter(file.getAbsoluteFile(), true));) {
+                    bf.write(linea + "\n");
+                } catch (IOException ex) {
+                    System.out.println("io exception escritura en el registro");
+                }
             } catch (IOException ex) {
-                System.out.println("IO EXCEPTION EN LA LECTURA DEL ARCHIVO");
-            } catch (ClassNotFoundException ex) {
-                System.out.println("ClassNotFoundException");
+                System.out.println("io exception en crear archivo para el ");
             }
-            return null;
+        } else {
+            try (BufferedWriter bf = new BufferedWriter(new FileWriter(file.getAbsoluteFile(), true));) {
+                bf.write(linea + "\n");
+            } catch (IOException ex) {
+                System.out.println("io exception escritura en el registro");
+            }
         }
 
     }
 
-    @Override
-    public void init() {
-        Archivos archivos = new Archivos();
-        archivos.generarCategorias();
-        archivos.generarBinarios();
-        leerCategorias();
-
+    public VBox getRoot() {
+        return root;
     }
 
-    public void leerCategorias() {
-        try (BufferedReader archivo = new BufferedReader(new FileReader("src/recursos/categorias.txt"))) {
-            String linea = archivo.readLine();
-            while (linea != null) {
-                String[] lista = linea.split(",");
-                listaCategorias.add(lista[0]);
-                rutaImagenes.add(lista[1]);
-                linea = archivo.readLine();
-            }
-            archivo.close();
-
-        } catch (FileNotFoundException ex) {
-            System.out.println("CARPETA NO ENCONTRADA");
-        } catch (IOException ex) {
-            System.out.println("IO EXCEPTION EN LECTURA DEL ARCHIVO DE TEXTO");
-        }
-
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        launch(args);
+    public void setParar(boolean parar) {
+        this.parar = parar;
     }
 
 }

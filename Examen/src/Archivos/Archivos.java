@@ -5,16 +5,12 @@
  */
 package Archivos;
 
-import examen.Categoria;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

@@ -26,20 +26,18 @@ public class Categoria {
         hash = 59 * hash + Objects.hashCode(this.nombre);
         return hash;
     }
+    
+    //Es igual si su nombre es igual.
+    //Lo uso solamente para obtener la categoría.
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        String string = (String) obj;
+        if (string == nombre) {
             return true;
-        }
-        if (obj == null) {
+        }else{
             return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Categoria other = (Categoria) obj;
-        return true;
+        }   
     }
 
     public String getNombre() {
